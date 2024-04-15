@@ -3,7 +3,7 @@
 // icon-color: red; icon-glyph: mobile-alt;
 /**
  * Author:LSP
- * Date:2023-05-12
+ * Date:2023-04-15
  */
 // -------------------------------------------------------
 // 是否是开发环境，配合手机端调试使用，正式发布设置为false
@@ -36,11 +36,11 @@ class Widget extends BaseWidget {
       detail: `https://m.client.10010.com/mobileserviceimportant/home/queryUserInfoSeven?version=iphone_c@10.0100&desmobiel=13232135179&showType=0`,
     },
     titleDayColor: '#000000',
-    titleNightColor: '#000000',
+    titleNightColor: '#999999',
     descDayColor: '#000000',
-    descNightColor: '#000000',
+    descNightColor: '#999999',
     refreshTimeDayColor: '#000000',
-    refreshTimeNightColor: '#000000',
+    refreshTimeNightColor: '#999999',
   };
 
   fee = {

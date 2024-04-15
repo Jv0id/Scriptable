@@ -3,7 +3,7 @@
 // icon-color: blue; icon-glyph: mobile-alt;
 /**
  * Author:LSP
- * Date:2024-03-15
+ * Date:2024-04-12
  */
 // -------------------------------------------------------
 // 是否是开发环境，配合手机端调试使用，正式发布设置为false
@@ -35,16 +35,16 @@ class Widget extends BaseWidget {
     cache_key_detail: 'detail',
     cache_key_balance: 'balance',
     fetchUrl: {
-      home: 'https://e.189.cn/store/wap/partner/stylehead/189Bill.do',
-      detail: 'https://e.189.cn/store/user/package_detail.do?t=189Bill',
-      balance: 'https://e.189.cn/store/user/balance_new.do',
+      home: 'https://e.dlife.cn/wap/mine/showIndex.do#/',
+      detail: 'https://e.dlife.cn/user/package_detail.do',
+      balance: 'https://e.dlife.cn/user/balance.do',
     },
     titleDayColor: '#000000',
-    titleNightColor: '#000000',
+    titleNightColor: '#999999',
     descDayColor: '#000000',
-    descNightColor: '#000000',
+    descNightColor: '#999999',
     refreshTimeDayColor: '#000000',
-    refreshTimeNightColor: '#000000',
+    refreshTimeNightColor: '#999999',
   };
 
   fee = {
@@ -67,7 +67,7 @@ class Widget extends BaseWidget {
     unit: 'MB',
   };
 
-  getValueByKey = (key) => this.readWidgetSetting()[key] ?? '';
+  getValueByKey = (key) => this.readWidgetSetting()[key] ?? this.defaultPreference[key];
 
   titleDayColor = () => this.getValueByKey('titleDayColor');
   titleNightColor = () => this.getValueByKey('titleNightColor');
@@ -201,10 +201,18 @@ class Widget extends BaseWidget {
               const webview = new WebView();
               await webview.loadURL(this.defaultPreference.fetchUrl.home);
               await webview.present();
-              const request = new Request(this.defaultPreference.fetchUrl.balance);
+
+
+              const request = new Request(this.defaultPreference.fetchUrl.home);
               request.method = 'POST';
               request.credentials = 'include';
+              request.headers = {
+                'Referer': 'https://e.dlife.cn/user/index.do',
+                'Sec-Fetch-Mode': 'cors',
+                'X-Requested-With': 'XMLHttpRequest',
+              };
               const response = await request.loadJSON();
+              console.log('======================================');
               console.log(
                 JSON.stringify(response, null, 2)
               );
@@ -216,6 +224,8 @@ class Widget extends BaseWidget {
                 // 保存配置
                 widgetSetting['cookie'] = ck;
               }
+
+
             } else {
               Pasteboard.copy(this.defaultPreference.fetchUrl.home);
               await this.generateInputAlert({
