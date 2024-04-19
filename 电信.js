@@ -3,12 +3,12 @@
 // icon-color: blue; icon-glyph: mobile-alt;
 /**
  * Author:LSP
- * Date:2024-04-12
+ * Date:2024-04-19
  */
 // -------------------------------------------------------
 // 是否是开发环境，配合手机端调试使用，正式发布设置为false
 const isDev = false;
-const dependencyLSP = '20230512';
+const dependencyLSP = '20240419';
 console.log(`当前环境 👉👉👉👉👉 ${isDev ? 'DEV' : 'RELEASE'}`);
 console.log(`----------------------------------------`);
 // 分支
@@ -101,7 +101,7 @@ class Widget extends BaseWidget {
           type: 'cell',
           icon: `${this.getRemoteRootPath()}/img/icon_10000.png`,
           needLoading: true,
-          desc: this.getValueByKey('cookie')?.length > 0 ? '已登录' : '未登录'
+          desc: this.getValueByKey('loginMiddle')?.length > 0 ? '已填写' : '未填写'
         },
         {
           name: 'filterOrientateFlow',
@@ -195,54 +195,26 @@ class Widget extends BaseWidget {
         const widgetSetting = this.readWidgetSetting();
         switch (item.name) {
           case 'chinaTelecomCK':
-            let ck;
-            let selectIndex = await this.generateAlert('登录信息', '1.网页登录\n2.自己抓取填入ck', ['网页登录', '直接填入']);
+            let loginMiddle;
+            let selectIndex = await this.generateAlert('登录信息填写', '1.复制链接进行网页登录\n2.抓取包含loginMiddle.do链接进行填入', ['复制地址', '填入链接']);
             if (selectIndex == 0) {
-              const webview = new WebView();
-              await webview.loadURL(this.defaultPreference.fetchUrl.home);
-              await webview.present();
-
-
-              const request = new Request(this.defaultPreference.fetchUrl.home);
-              request.method = 'POST';
-              request.credentials = 'include';
-              request.headers = {
-                'Referer': 'https://e.dlife.cn/user/index.do',
-                'Sec-Fetch-Mode': 'cors',
-                'X-Requested-With': 'XMLHttpRequest',
-              };
-              const response = await request.loadJSON();
-              console.log('======================================');
-              console.log(
-                JSON.stringify(response, null, 2)
-              );
-              if (response?.result == 0) {
-                const cookies = request.response.cookies;
-                let cookie = [];
-                cookie = cookies.map((item) => item.name + '=' + item.value);
-                ck = cookie.join('; ');
-                // 保存配置
-                widgetSetting['cookie'] = ck;
-              }
-
-
-            } else {
               Pasteboard.copy(this.defaultPreference.fetchUrl.home);
+              await this.generateAlert('提示', '登录链接已复制，请自行网页登录抓包', ["好的"])
+            } else {
               await this.generateInputAlert({
-                title: '登录信息填写',
-                message: '填入抓取天翼的cookie\n👉登录地址已复制到粘贴板了👈',
+                title: '登录信息链接填写',
+                message: '填入抓取包含loginMiddle.do的链接',
                 options: [
-                  { hint: '请输入cookie', value: widgetSetting?.cookie ?? '' },
+                  { hint: '请输入链接', value: '' },
                 ]
               }, async (inputArr) => {
                 this.reset = true;
-                ck = inputArr[0].value;
+                loginMiddle = inputArr[0].value;
                 // 保存配置
-                widgetSetting['cookie'] = ck;
+                widgetSetting['loginMiddle'] = loginMiddle;
               });
             }
-            this.cookie = widgetSetting.cookie;
-            insertDesc = ck?.length > 0 ? '已填写' : '未填写';
+            insertDesc = loginMiddle?.length > 0 ? '已填写' : '未填写';
             this.writeWidgetSetting({ ...widgetSetting });
             break;
         }
@@ -258,6 +230,24 @@ class Widget extends BaseWidget {
   }
 
   async provideSmallWidget(widgetSetting) {
+    // ========================================
+    let loginMiddle = widgetSetting.loginMiddle;
+    if (loginMiddle) {
+      console.log('获取加载ck...');
+      const req = new Request(widgetSetting.loginMiddle);
+      req.credentials = 'include';
+      await req.load();
+      const cookieResArr = req.response.cookies;
+      const ckArr = cookieResArr?.map(item => `${item.name}=${item.value}`);
+      const ck = ckArr.join(';')
+      widgetSetting['cookie'] = ck;
+      this.cookie = ck;
+      console.log(`获取到的ck：${ck}`);
+    } else {
+      console.error('❌❌❌❌❌未配置登录链接❌❌❌❌❌');
+    }
+    console.log(`=======================================`);
+
     // ========================================
     await this.loadMoneyBalance();
     await this.loadDetailInfo(widgetSetting);

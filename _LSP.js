@@ -8,7 +8,7 @@
 */
 
 // 当前环境版本号
-const VERSION = 20230602
+const VERSION = 20240419
 // 组件配置文件名
 const settingConfigName = 'settings.json';
 // 分支
@@ -2299,7 +2299,7 @@ class BaseWidget {
       })
 
       const use_github = document.querySelector('input[name="use_github"]')
-      use_github.checked = settings.use_github ?? true
+      use_github.checked = settings.use_github ?? false
       use_github.addEventListener('change', (e) => {
         formData['use_github'] = e.target.checked
         invoke('changeSettings', formData)
