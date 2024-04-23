@@ -8,7 +8,7 @@
 */
 
 // 当前环境版本号
-const VERSION = 20240419_2
+const VERSION = 20240419_1
 // 组件配置文件名
 const settingConfigName = 'settings.json';
 // 分支
